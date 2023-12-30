@@ -5,3 +5,5 @@
 
 - we will add features and complete this readme.md file.
 
+- Currently, only supports Linux operating system, if you wanna port our build script to any other os, you are welcome.
+
