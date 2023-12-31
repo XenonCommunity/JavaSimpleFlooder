@@ -1,8 +1,8 @@
 echo "-------------------------- Resolving Dependecies... ------------------------"
 mvn clean
 echo "----------------------------- Packaging Jars... ----------------------------"
-mvn package
+mvn package -e
 echo "----------------------------- Running Project... ---------------------------"
 echo "---------------------------APPLICATION - console: --------------------------"
-java -cp target/XenonTools-0.1.jar ir.xenoncommunity.Main
+java -cp target/XenonTools-0.1.jar ir.xenoncommunity.Main -kir kos -salam 22 -b
 echo "--------------------------- Done Running Program ---------------------------"
