@@ -4,5 +4,5 @@ echo "----------------------------- Packaging Jars... --------------------------
 mvn package -e
 echo "----------------------------- Running Project... ---------------------------"
 echo "---------------------------APPLICATION - console: --------------------------"
-java -cp target/XenonTools-0.1.jar ir.xenoncommunity.Main -kir kos -salam 22 -b
+java -cp target/XenonTools-0.1.jar ir.xenoncommunity.Main
 echo "--------------------------- Done Running Program ---------------------------"
