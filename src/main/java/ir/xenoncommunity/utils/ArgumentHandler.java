@@ -3,7 +3,6 @@ package ir.xenoncommunity.utils;
 import ir.xenoncommunity.Main;
 import lombok.val;
 import lombok.experimental.UtilityClass;
-import lombok.var;
 
 @UtilityClass
 public class ArgumentHandler {
@@ -12,7 +11,7 @@ public class ArgumentHandler {
 			if(Main.args[index].equals(argIn)) {
 				var temp = (index + 1 < Main.args.length) ? (Main.args[index + 1]) : ("");
 				if(temp.startsWith("-") ) {
-					return (T) Boolean.valueOf(Boolean.parseBoolean(Main.args[index]));
+					return (T) Boolean.valueOf(true);
 				}else {
 					switch(temp){
 						case "":
