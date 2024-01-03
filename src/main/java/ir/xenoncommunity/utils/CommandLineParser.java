@@ -1,12 +1,16 @@
 package ir.xenoncommunity.utils;
 
+import org.jetbrains.annotations.Nullable;
+
 public class CommandLineParser {
+
 	private final String[] args;
 
 	public CommandLineParser(String[] args) {
 		this.args = args;
 	}
 
+	@Nullable
 	public <T> T get(String arg, Class<T> type) {
 		for (int i = 0; i < args.length - 1; i++) {
 			if (args[i].equals(arg)) {
