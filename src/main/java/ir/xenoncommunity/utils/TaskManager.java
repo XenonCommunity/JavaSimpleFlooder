@@ -1,8 +1,5 @@
 package ir.xenoncommunity.utils;
 
-import lombok.experimental.UtilityClass;
-import lombok.val;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +12,6 @@ public class TaskManager {
         tasks.get(idIn).interrupt();
     }
     public void doTasks(){
-        tasks.forEach(e ->{
-            e.start();
-        });
+        tasks.forEach(Thread::start);
     }
 }

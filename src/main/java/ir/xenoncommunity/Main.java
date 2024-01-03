@@ -1,7 +1,6 @@
 package ir.xenoncommunity;
 
 import ir.xenoncommunity.utils.CommandLineParser;
-import lombok.Getter;
 
 public class Main {
 	public static MainRunner runner;
