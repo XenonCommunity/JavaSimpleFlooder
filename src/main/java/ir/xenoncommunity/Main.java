@@ -1,11 +1,12 @@
 package ir.xenoncommunity;
 
 import ir.xenoncommunity.utils.CommandLineParser;
+import lombok.Getter;
 
 public class Main {
+	public static MainRunner runner;
 	public static void main(String[] args) {
-		CommandLineParser parser = new CommandLineParser(args);
-		MainRunner runner = new MainRunner(parser);
+		Main.runner = new MainRunner(new CommandLineParser(args));
 		runner.run();
 	}
 }

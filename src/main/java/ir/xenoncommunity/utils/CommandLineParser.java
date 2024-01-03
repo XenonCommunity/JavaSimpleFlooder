@@ -13,10 +13,8 @@ public class CommandLineParser {
 	@Nullable
 	public <T> T get(String arg, Class<T> type) {
 		for (int i = 0; i < args.length - 1; i++) {
-			if (args[i].equals(arg)) {
-				String value = args[i + 1];
-				return convertToType(value, type);
-			}
+			if (args[i].equals(arg))
+				return convertToType(args[i + 1], type);
 		}
 		return null;
 	}
