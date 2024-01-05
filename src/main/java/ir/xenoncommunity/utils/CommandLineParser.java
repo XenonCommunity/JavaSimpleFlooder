@@ -13,7 +13,7 @@ public class CommandLineParser {
 	@Nullable
 	public <T> T get(String arg, Class<T> type) {
 		for (int i = 0; i < args.length ; i++) {
-			if(args[i + 1].startsWith("-"))
+			if(args[i].equals(arg) && args[i + 1].startsWith("-"))
 				return (T) Boolean.TRUE;
 			else if (args[i].equals(arg))
 				return convertToType(args[i + 1], type);
