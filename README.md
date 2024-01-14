@@ -14,7 +14,7 @@
 - easy to use configuration - (soon)
 - NOTE: java isn't a good language for stress testing, since we can't get high p/s. which means we will rewrite this project, into other programming language, for sure.
 
-## Getting Started 🚧 (Coming Soon)
+## Getting Started 🚧
 
 - NOTE: our build script is removed due to unusability, you can setup this project with intelij idea, or any other IDE's with support of maven, or it's alternatives.
 
