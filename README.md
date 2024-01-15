@@ -33,4 +33,4 @@ Feel free to contribute to the development of JSS. we will notice it.
 
 ## Disclaimer ⚠️
 
-This project is intended for educational and responsible use only. Ensure that you comply with the terms of service of Minecraft servers and respect the privacy and rules of other communities.
+This project is intended for educational and responsible use only. Ensure that you comply with the terms of service of servers and respect the privacy and rules of other communities.
