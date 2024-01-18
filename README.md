@@ -26,6 +26,7 @@
 ## TODO 📝
 - add confing.txt
 - and add more things, to this readme.
+- fix problems about no pps
 
 ## Contribution Guidelines 🤝
 
