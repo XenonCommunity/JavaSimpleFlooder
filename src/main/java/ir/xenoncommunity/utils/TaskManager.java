@@ -10,6 +10,7 @@ public class TaskManager {
     }
     public void remove(final int idIn){
         tasks.get(idIn).interrupt();
+        tasks.remove(idIn);
     }
     public void doTasks(){
         tasks.forEach(Thread::start);

@@ -29,6 +29,8 @@ public class MainRunner {
 		val isResult = Main.runner.parser.get("--sendResult", Boolean.class);
 		val isKeepAlive = Main.runner.parser.get("--keepAlive", Boolean.class);
 		val udp = Main.runner.parser.get("--udp", Boolean.class);
+		val sendBytes = Main.runner.parser.get("--sendBytes", Boolean.class);
+		val byteSize = Main.runner.parser.get("--byteSize", Integer.class);
 		if(this.isDebug()){
 			getLogger().setSection("DEBUG");
 			getLogger().print(Logger.LEVEL.INFO, "ip is: " + ip);
@@ -37,13 +39,15 @@ public class MainRunner {
 			getLogger().print(Logger.LEVEL.INFO, "isResult is: " + isResult);
 			getLogger().print(Logger.LEVEL.INFO, "isKeepAlive is: " + isKeepAlive);
 			getLogger().print(Logger.LEVEL.INFO, "udp is: " + udp);
+			getLogger().print(Logger.LEVEL.INFO, "sendBytes is: " + sendBytes);
+			getLogger().print(Logger.LEVEL.INFO, "byteSize is: " + byteSize);
 		}
 		for(int i = 0; i <= maxThreads; i++){
 			if(this.isDebug)
 				getLogger().print(Logger.LEVEL.INFO, "adding new thread. max: " + maxThreads);
 			getTaskManager().add(new Thread(() -> {
 				while (true)
-					socketUtils.connect(ip, port, isResult, isKeepAlive, udp);
+					socketUtils.connect(ip, port, isResult, isKeepAlive, udp, sendBytes, byteSize);
 			}));
 		}
 		getLogger().print(Logger.LEVEL.INFO,  "doing tasks...");
