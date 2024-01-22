@@ -54,6 +54,12 @@ public class JSSAttack implements Runnable {
         final String method = this.parser.get("--method", String.class, "TCPFLOOD");
         final Boolean verbose = this.parser.get("--verbose", Boolean.class, false);
 
+        if (ip == null) {
+            System.out.println("JSSAttack by XenonCommunity");
+            System.out.println("Usage: java -jar JSSAttack.jar --ip <ip> --port <port> --threads <threads> --byteSize <byteSize> --duration <duration> --method <method> [--verbose] [--debug]");
+            System.exit(0);
+        }
+
         // Set logging level based on verbosity and debug mode
         if (verbose) {
             Logger.setCurrentLevel(Logger.LEVEL.VERBOSE);
