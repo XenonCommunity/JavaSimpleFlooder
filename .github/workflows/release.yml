@@ -76,3 +76,8 @@ jobs:
           asset_path: ./target/${{ steps.set_output_path.outputs.path }}
           asset_name: ${{ steps.set_output_path.outputs.path }}
           asset_content_type: application/java-archive
+
+
+permissions:
+  contents: write
+  packages: write
