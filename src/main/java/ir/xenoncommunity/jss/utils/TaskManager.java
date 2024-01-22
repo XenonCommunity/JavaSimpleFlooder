@@ -5,7 +5,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class TaskManager {
-    public ExecutorService tasks = Executors.newFixedThreadPool(1000);
+    public final ExecutorService tasks;
+
+    public TaskManager(Integer maxThreads) {
+        tasks = Executors.newFixedThreadPool(maxThreads);
+    }
 
     public void add(final Runnable threadIn) {
         tasks.submit(threadIn);
