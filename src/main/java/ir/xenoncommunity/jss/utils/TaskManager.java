@@ -8,7 +8,7 @@ public class TaskManager {
     public final ExecutorService tasks;
 
     public TaskManager(Integer maxThreads) {
-        tasks = Executors.newFixedThreadPool(maxThreads);
+        tasks = Executors.newFixedThreadPool(maxThreads, Executors.defaultThreadFactory());
     }
 
     public void add(final Runnable threadIn) {

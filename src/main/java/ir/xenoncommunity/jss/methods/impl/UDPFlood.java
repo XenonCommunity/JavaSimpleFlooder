@@ -43,8 +43,9 @@ public class UDPFlood implements IAttackMethod {
 
         statics.cps(); // update connection per second statistics
 
+        System.out.println(socket.isConnected());
         // continuously send data as long as the socket is connected and the limit is not reached
-        while (socket.isConnected() && !statics.isLimitReached()) {
+        while (!statics.isLimitReached() && statics.isRunning()) {
             statics.bps(maxBytesSize);  // update bytes per second statistics
             statics.pps();  // update packets per second statistics
 

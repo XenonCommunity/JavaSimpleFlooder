@@ -23,9 +23,6 @@ public class ConnFlood implements IAttackMethod {
      */
     @Override
     public void send(InetAddress addr, int port) throws Exception {
-        // Check if the limit is reached before sending
-        if (statics.isLimitReached()) return;
-
         // create a socket connection to the specified address and port
         @Cleanup Socket socket = new Socket(addr, port);
 

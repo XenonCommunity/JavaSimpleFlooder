@@ -81,7 +81,7 @@ public class HTTPFlood implements IAttackMethod {
         int length = bytes.length;
 
         // send the request while the socket is connected and the limit is not reached
-        while (socket.isConnected() && !statics.isLimitReached()) {
+        while (socket.isConnected() && !statics.isLimitReached() && statics.isRunning()) {
             statics.bps(length); // update bytes per second statistics
             statics.pps(); // update packets per second statistics
             outputStream.write(bytes);
