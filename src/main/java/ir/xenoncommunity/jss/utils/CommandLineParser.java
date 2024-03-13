@@ -6,11 +6,11 @@ public class CommandLineParser {
 
     private final String[] args;
 
-    public CommandLineParser(String[] args) {
+    public CommandLineParser(final String[] args) {
         this.args = args;
     }
 
-    public <T> T get(String arg, Class<T> type, @Nullable T defaultValue) {
+    public <T> T get(final String arg, final Class<T> type, final @Nullable T defaultValue) {
         for (int i = 0; i < args.length - 1; i++) {
             if (!args[i].equals(arg)) continue;
 
@@ -21,7 +21,7 @@ public class CommandLineParser {
 
 
 
-    private <T> T convertToType(String value, Class<T> type) {
+    private <T> T convertToType(final String value, final Class<T> type) {
         if (type.equals(String.class)) {
             return type.cast(value);
         } else if (type.equals(Integer.class)) {

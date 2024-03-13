@@ -1,6 +1,7 @@
 package ir.xenoncommunity.jss.utils;
 
 import lombok.experimental.UtilityClass;
+import lombok.val;
 
 import java.security.SecureRandom;
 import java.util.Random;
@@ -13,16 +14,14 @@ public class Randomize {
         return (int) (Math.random() * 64535) + 1000;
     }
 
-    public byte[] randomBytes(int size) {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] bytes = new byte[size];
-        secureRandom.nextBytes(bytes);
+    public byte[] randomBytes(final int size) {
+        val bytes = new byte[size];
+        new SecureRandom().nextBytes(bytes);
         return bytes;
     }
 
-    public String randomString(int length) {
-        Random random = new Random();
-        return random.ints(length, 0, characters.length())
+    public String randomString(final int length) {
+        return new Random().ints(length, 0, characters.length())
                 .mapToObj(characters::charAt)
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                 .toString();

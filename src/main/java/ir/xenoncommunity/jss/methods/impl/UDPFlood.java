@@ -37,7 +37,7 @@ public class UDPFlood implements IAttackMethod {
      * @throws Exception if an error occurs during the send operation
      */
     @Override
-    public void send(InetAddress addr, int port) throws Exception {
+    public void send(final InetAddress addr, final int port) throws Exception {
         // Check if the limit is reached before sending
         if (statics.isLimitReached()) return;
 

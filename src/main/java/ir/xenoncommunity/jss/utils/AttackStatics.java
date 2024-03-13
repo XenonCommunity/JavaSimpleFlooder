@@ -3,6 +3,7 @@ package ir.xenoncommunity.jss.utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.val;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,9 +22,9 @@ public class AttackStatics {
      * Reset counters and log the number of packets, bytes, and commands per second.
      */
     public void second() {
-        long packetsPerSecond = ppsCounter.getAndSet(0);
-        long bytesPerSecond = bpsCounter.getAndSet(0);
-        long commandsPerSecond = cpsCounter.getAndSet(0);
+        val packetsPerSecond = ppsCounter.getAndSet(0);
+        val bytesPerSecond = bpsCounter.getAndSet(0);
+        val commandsPerSecond = cpsCounter.getAndSet(0);
         // Format the output string
         String formattedOutput = String.format("PPS: %,d, BPS: %s\\ps, CPS: %,d%n", packetsPerSecond, formatBytes(bytesPerSecond), commandsPerSecond);
         // Log the formatted output
@@ -36,9 +37,9 @@ public class AttackStatics {
      * @param bytes The number of bytes to be formatted
      * @return The formatted string representation of the bytes
      */
-    private String formatBytes(long bytes) {
+    private String formatBytes(final long bytes) {
         // Convert bytes to bits
-        double bits = (double) bytes * 8;
+        val bits = (double) bytes * 8;
 
         // Check if bytes is greater than or equal to 1Gb
         if (bytes >= 1024 * 1024 * 1024) {
@@ -70,7 +71,7 @@ public class AttackStatics {
         ppsCounter.incrementAndGet();
     }
 
-    public void bps(int bytes) {
+    public void bps(final int bytes) {
         if (bytes <= 0) return;
         bpsCounter.addAndGet(bytes);
     }

