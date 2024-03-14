@@ -1,11 +1,15 @@
 package ir.xenoncommunity.jss.utils;
 
 import ir.xenoncommunity.jss.utils.filemanager.Value;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
-import lombok.*;
+import lombok.val;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 @Getter
 @Setter
 @UtilityClass
@@ -13,6 +17,7 @@ public class FileManager {
     public final File folder = new File("JSS");
     public final File config = new File(folder,"config.txt");
     public final List<Value> values = new ArrayList<>();
+    private boolean isSuccess = true;
     public void init(){
         if(folder.exists() && config.exists()){
             readConf();
@@ -32,8 +37,8 @@ public class FileManager {
     }
     @SneakyThrows
     public void saveForFirstTime(){
-        folder.mkdirs();
-        config.createNewFile();
+        isSuccess = folder.mkdirs();
+        isSuccess = config.createNewFile();
         val bw = new BufferedWriter(new FileWriter(config));
         values.forEach(e -> {
             try {
@@ -42,5 +47,12 @@ public class FileManager {
             } catch (Exception ignored) {}
         });
         bw.close();
+        isFaild();
+    }
+    private void isFaild(){
+        Logger.log(Logger.LEVEL.ERROR, "Please rerun the program.\n" +
+                "this caused due to lack of permissions,\n" +
+                "so the program wasn't able to create config files.");
+        System.exit(0);
     }
 }

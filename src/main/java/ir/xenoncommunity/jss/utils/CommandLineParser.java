@@ -1,15 +1,12 @@
 package ir.xenoncommunity.jss.utils;
 
+import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
+@AllArgsConstructor
 public class CommandLineParser {
 
     private final String[] args;
-
-    public CommandLineParser(final String[] args) {
-        this.args = args;
-    }
-
     public <T> T get(final String arg, final Class<T> type, final @Nullable T defaultValue) {
         for (int i = 0; i < args.length - 1; i++) {
             if (!args[i].equals(arg)) continue;
@@ -22,14 +19,15 @@ public class CommandLineParser {
 
 
     private <T> T convertToType(final String value, final Class<T> type) {
-        if (type.equals(String.class)) {
-            return type.cast(value);
-        } else if (type.equals(Integer.class)) {
-            return type.cast(Integer.parseInt(value));
-        } else if (type.equals(Boolean.class)) {
-            return type.cast(Boolean.parseBoolean(value));
-        } else {
-            throw new IllegalArgumentException("Unsupported type");
-        }
+        return type.equals(String.class) ?
+                type.cast(value)
+                :
+                (type.equals(Integer.class)
+                ?
+                type.cast(Integer.parseInt(value))
+                :
+                (type.equals(Boolean.class)
+                ? type.cast(Boolean.parseBoolean(value))
+                : null));
     }
 }
